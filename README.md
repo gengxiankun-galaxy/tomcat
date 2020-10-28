@@ -21,7 +21,7 @@ TOMCAT_VERSIION | tomcat 版本号
 Dependencies
 ------------
 
-依赖与 JAVA 环境
+依赖于 JAVA 环境
 
 Example Playbook
 ----------------
