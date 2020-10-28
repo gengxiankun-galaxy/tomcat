@@ -4,6 +4,12 @@
 - name: 获取是否已经安装 tomcat
   shell: '{{ OPT_PATH }}/{{ SERVER_NAME }}/bin/version.sh | grep "Server version"'
   register: tomcat_version
+  ignore_errors: yes
+
+- name: 获取是否已经安装 jsvc
+  shell: 'ls -A {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/commons-daemon-1.0.7-native-src/unix/jsvc'
+  register: jsvc_version
+  ignore_errors: yes
 
 - name: 预处理
   shell: '[[ ! -d "{{ OPT_PATH }}" ]] && mkdir -vp {{ OPT_PATH }}'
@@ -16,3 +22,15 @@
     cp -r /tmp/apache-tomcat-{{ TOMCAT_VERSIION }} {{ OPT_PATH }}/{{ SERVER_NAME }}" 
   when: tomcat_version.failed == true
 
+- name: 安装 jsvc
+  shell: "yum install -y gcc &&\
+        tar -zxvf {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/commons-daemon-native.tar.gz -C {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/ &&\
+        cd {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/commons-daemon-1.0.7-native-src/unix/ &&\
+        ./configure --with-java=$JAVA_HOME && make"
+  when: jsvc_version.failed == true
+
+- name: 部署 jsvc 执行脚本
+  template: src=jsvc.sh.j2 dest={{ OPT_PATH }}/{{ SERVER_NAME }}/bin/jsvc.sh
+
+- name: 配置 server.xml
+  template: src=server.xml.j2 dest={{ OPT_PATH }}/{{ SERVER_NAME }}/conf/server.xml

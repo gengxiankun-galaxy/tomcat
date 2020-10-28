@@ -1,7 +1,8 @@
 ---
 # defaults file for tomcat
 
-SERVER_NAME=tomcat
-OPT_PATH=/opt/gengxiankun-galaxy
-TOMCAT_FIST_VERSION=9
-TOMCAT_VERSIION=9.0.39
+SERVER_NAME: tomcat
+OPT_PATH: /opt/gengxiankun-galaxy
+TOMCAT_FIST_VERSION: 9
+TOMCAT_VERSIION: 9.0.39
+JAVA_OPTS: -Xms6144m -Xmx6144m -XX:+ExplicitGCInvokesConcurrent  -XX:MaxPermSize=256m
