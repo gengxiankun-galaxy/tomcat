@@ -1,0 +1,18 @@
+---
+# tasks file for tomcat
+
+- name: 获取是否已经安装 tomcat
+  shell: '{{ OPT_PATH }}/{{ SERVER_NAME }}/bin/version.sh | grep "Server version"'
+  register: tomcat_version
+
+- name: 预处理
+  shell: '[[ ! -d "{{ OPT_PATH }}" ]] && mkdir -vp {{ OPT_PATH }}'
+  ignore_errors: yes
+  when: tomcat_version.failed == true
+
+- name: 安装 tomcat
+  shell: "curl -fSL https://archive.apache.org/dist/tomcat/tomcat-{{ TOMCAT_FIST_VERSION }}/v{{ TOMCAT_VERSIION }}/bin/apache-tomcat-{{ TOMCAT_VERSIION }}.tar.gz -o /tmp/apache-tomcat-{{ TOMCAT_VERSIION }}.tar.gz &&\
+    tar -zxvf /tmp/apache-tomcat-{{ TOMCAT_VERSIION }}.tar.gz -C /tmp/ &&\
+    cp -r /tmp/apache-tomcat-{{ TOMCAT_VERSIION }} {{ OPT_PATH }}/{{ SERVER_NAME }}" 
+  when: tomcat_version.failed == true
+

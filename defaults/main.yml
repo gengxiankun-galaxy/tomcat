@@ -1,0 +1,7 @@
+---
+# defaults file for tomcat
+
+SERVER_NAME=tomcat
+OPT_PATH=/opt/gengxiankun-galaxy
+TOMCAT_FIST_VERSION=9
+TOMCAT_VERSIION=9.0.39
