@@ -30,7 +30,7 @@
   when: jsvc_version.failed == true
 
 - name: 部署 jsvc 执行脚本
-  template: src=jsvc.sh.j2 dest={{ OPT_PATH }}/{{ SERVER_NAME }}/bin/jsvc.sh
+  template: src=jsvc.sh.j2 dest={{ OPT_PATH }}/{{ SERVER_NAME }}/bin/jsvc.sh mode=0777
 
 - name: 配置 server.xml
   template: src=server.xml.j2 dest={{ OPT_PATH }}/{{ SERVER_NAME }}/conf/server.xml
