@@ -75,19 +75,18 @@ stop() {
 #    PID=`cat /usr/local/biservices/jsvc.pid`
 #    kill $PID
 
-#    ps aux | grep jsvc | grep -v 'grep' | awk -F ' ' '{print $2}' | xargs kill -s 2
+     ps aux | grep jsvc | grep {{ SERVER_NAME }} | grep -v 'grep' | awk -F ' ' '{print $2}' | xargs kill -s 2
 #    ((COUNT++))
 
     rm -rf $CATALINA_HOME/logs/*
     rm -rf $CATALINA_HOME/work/*
 
- #  sleep 2
-    killall jsvc    
+    sleep 2
+    #killall jsvc    
  
     COUNT=0
-    PID="jsvc.pid"
 
-   # PID=`ps aux | grep tomcat | awk /jsvc/'{print $2}'`
+    PID=`ps aux | grep tomcat | awk /jsvc/'{print $2}'`
     while  [ -n "$PID" ]
     do
          if [ $COUNT -ge 30 ]
