@@ -13,7 +13,7 @@
 # version 1.01 - Cross between Red Hat Tomcat RPM and Chris Bush scripts
 
 CATALINA_HOME={{ OPT_PATH }}/{{ SERVER_NAME }}
-DAEMON_HOME=$CATALINA_HOME/bin/commons-daemon-1.0.7-native-src/unix/jsvc
+DAEMON_HOME=$CATALINA_HOME/bin/commons-daemon-{{ JSVC_VERSION }}-native-src/unix/jsvc
 TMP_DIR=/var/tmp
 CLASSPATH=\
 $JAVA_HOME/lib/tools.jar:\

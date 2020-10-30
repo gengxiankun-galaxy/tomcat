@@ -7,30 +7,50 @@
   ignore_errors: yes
 
 - name: 获取是否已经安装 jsvc
-  shell: 'ls -A {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/commons-daemon-1.0.7-native-src/unix/jsvc'
+  shell: 'ls -A {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/commons-daemon-{{ JSVC_VERSION }}-native-src/unix/jsvc'
   register: jsvc_version
   ignore_errors: yes
+
+- name: 判断 tomcat 版本是否一致
+  shell: 'test "Server version: Apache Tomcat/{{ TOMCAT_VERSIION }}" = "{{ tomcat_version.stdout }}"'
+  register: tomcat_version_same
+  ignore_errors: yes
+
+- name: 暂停 tomcat
+  shell: "{{ OPT_PATH }}/{{ SERVER_NAME }}/bin/jsvc.sh stop"
+  ignore_errors: yes
+  when: tomcat_version_same.failed == true
+
+- name: 删除部署目录
+  shell: "rm -rf {{ OPT_PATH }}/{{ SERVER_NAME }}"
+  ignore_errors: yes
+  when: tomcat_version_same.failed == true
 
 - name: 预处理
   shell: '[[ ! -d "{{ OPT_PATH }}" ]] && mkdir -vp {{ OPT_PATH }}'
   ignore_errors: yes
-  when: tomcat_version.failed == true
+  when: tomcat_version_same.failed == true
 
 - name: 安装 tomcat
   shell: "curl -fSL https://archive.apache.org/dist/tomcat/tomcat-{{ TOMCAT_FIST_VERSION }}/v{{ TOMCAT_VERSIION }}/bin/apache-tomcat-{{ TOMCAT_VERSIION }}.tar.gz -o /tmp/apache-tomcat-{{ TOMCAT_VERSIION }}.tar.gz &&\
     tar -zxvf /tmp/apache-tomcat-{{ TOMCAT_VERSIION }}.tar.gz -C /tmp/ &&\
     cp -r /tmp/apache-tomcat-{{ TOMCAT_VERSIION }} {{ OPT_PATH }}/{{ SERVER_NAME }}" 
-  when: tomcat_version.failed == true
+  when: tomcat_version_same.failed == true
 
 - name: 安装 jsvc
   shell: "yum install -y gcc &&\
         tar -zxvf {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/commons-daemon-native.tar.gz -C {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/ &&\
-        cd {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/commons-daemon-1.0.7-native-src/unix/ &&\
+        cd {{ OPT_PATH }}/{{ SERVER_NAME }}/bin/commons-daemon-{{ JSVC_VERSION }}-native-src/unix/ &&\
         ./configure --with-java=$JAVA_HOME && make"
-  when: jsvc_version.failed == true
+  when: jsvc_version.failed == true and TOMCAT_FIST_VERSION == 6
 
 - name: 部署 jsvc 执行脚本
   template: src=jsvc.sh.j2 dest={{ OPT_PATH }}/{{ SERVER_NAME }}/bin/jsvc.sh mode=0777
+  when: TOMCAT_FIST_VERSION == 6
 
 - name: 配置 server.xml
-  template: src=server.xml.j2 dest={{ OPT_PATH }}/{{ SERVER_NAME }}/conf/server.xml
+  template: src=server-{{ TOMCAT_FIST_VERSION }}.xml.j2 dest={{ OPT_PATH }}/{{ SERVER_NAME }}/conf/server.xml
+
+- name: 配置 loader delegate (tomcat 7)
+  copy: src=files/context.xml dest={{ OPT_PATH }}/{{ SERVER_NAME }}/conf/
+  when: TOMCAT_FIST_VERSION == 7
